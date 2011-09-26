@@ -1,0 +1,58 @@
+<project name="GMMTest" default="dist" basedir=".">
+    <description>
+        Build file of GMMTest project.
+    </description>
+  <!-- set global properties for this build -->
+  <property name="bin"  location="bin"/>
+  <property name="doc" location="doc"/>
+  <property name="apidoc" location="doc/api"/>
+  <property name="build" location="build"/>
+  <property name="src" location="src"/>
+  <property name="lib" location="lib"/>
+  
+  <property name="projectName" value="GMMTest"/>
+  <property name="jarName" value="gmmtest.jar"/>
+  
+  <target name="init">
+    <!-- Initialize -->
+	  <mkdir dir="${bin}"/>
+    <mkdir dir="${doc}"/>
+    <mkdir dir="${apidoc}"/>
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source">
+    <!-- Compile the java -->
+    <javac srcdir="${src}" destdir="${build}"/>
+  </target>
+  
+  <target name="dist" depends="compile" description="generate jar">
+    <!-- Create jar -->
+    <jar jarfile="${bin}/${jarName}">
+      <fileset dir="${build}"/>
+      <manifest>
+        <attribute name="Main-Class" value="densityEstimator.MixtureModelSimulator"/>
+      </manifest>
+    </jar>    
+  </target>
+
+  <target name="clean" description="clean up">
+    <!-- Clean-->
+	  <delete dir="${build}"/>
+	  <delete dir="${doc}"/>
+    <delete dir="${bin}"/>
+  </target>
+  
+  <target name="doc" depends="init" description="generate api doc">
+    <!-- Generate doc -->
+    <javadoc packagenames="densityEstimator.*" sourcepath="${src}"
+	    defaultexcludes="yes" destdir="${apidoc}" extdirs="${lib}" 
+	    author="true" version="true" use="true" windowtitle="${projectName}">
+	  <tag name="todo" scope="all" description="To do:" enabled="true"/>
+	  <tag name="fixme" scope="all" description="Fix me:" enabled="true"/>
+      <doctitle><![CDATA[<h1>GMMTest</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 2011 RGAI Szeged. All Rights Reserved.</i>]]></bottom>
+    </javadoc>
+  </target>
+</project>
+
