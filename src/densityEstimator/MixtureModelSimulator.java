@@ -53,23 +53,37 @@ public class MixtureModelSimulator {
     return ret.toString();
   }
   
-  //private static String arrayToString() {
-  //}
+  private static double[] parseArray(String sArray) {
+    String[] parts = sArray.split(",");
+    double[] ret = new double[parts.length];
+    for (int i = 0; i < parts.length; i ++) {
+      ret[i] = Double.parseDouble(parts[i]);
+    }
+    return ret;
+  }
   
   public static void main(String[] args) throws Exception{
-    final int numberOfComponents = 3;
-    final double[] expW = new double[]{0.5, 0.2, 0.3};
-    final double[] expNu = new double[]{-2.0, 1.0, 2.0};
-    final double[] expSigma = new double[]{0.2, 1.0, 0.5};
-    final String outputFileName = "simulation.gif";
-    final String tmpDirName = "./gmmSimualtion/";
-    final int snapshotStepSize = 1000;
-    final int numOfGeneratedSamples = 20 * snapshotStepSize;
-    final long seed = 123456789;
+    if (args.length != 8 && args.length != 9) {
+      System.err.println("Usage: java -jar gmmtest.jar w1,w2,...,wn m1,m2,...,mn v1,v2,...,vn outputFile tmpDir snapshotStepSize numberOfGeneratedSamples batchSize [seed]");
+      return;
+    }
+    final double[] expW = parseArray(args[0]);
+    final double[] expNu = parseArray(args[1]);
+    final double[] expSigma = parseArray(args[2]);
+    if (expW.length != expNu.length || expNu.length != expSigma.length || expSigma.length != expW.length) {
+      throw new RuntimeException("The number of components, means and variances have to be equal.");
+    }
+    final int numberOfComponents = expW.length;
+    final String outputFileName = args[3];
+    final String tmpDirName = args[4];
+    final int snapshotStepSize = Integer.parseInt(args[5]);
+    final int numOfGeneratedSamples = Integer.parseInt(args[6]);
+    final int batchSize = Integer.parseInt(args[7]);
+    final long seed = (args.length == 9) ? Long.parseLong(args[8]) : System.currentTimeMillis();
     final boolean isClear = true;
     
     // create gmm
-    final MixtureModel gmm = new BatchBasedOnlineGMM(numberOfComponents, snapshotStepSize);
+    final MixtureModel gmm = new BatchBasedOnlineGMM(numberOfComponents, batchSize);
     
     // init tmp directory
     File tmpDir = new File(tmpDirName);
