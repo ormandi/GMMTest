@@ -24,10 +24,10 @@ public class BatchBasedOnlineGMM extends AbstractGMM {
   private static final int COMPUTED_MOMENTS = 3;
   private static final double EPS = 1.0E-12;
   
-  private int bufferLength;       // number of samples from which gamma statistics are collected
-  private double[] pcx;           // bufferLength x numOfComps array in which the statistics are collected (probabilities)
-  private double[][] pcx_moments; // C x numOfComps array in which some other statistics are collected (moments)
-  private int c = 0;              // sample counter
+  protected int bufferLength;       // number of samples from which gamma statistics are collected
+  protected double[] pcx;           // bufferLength x numOfComps array in which the statistics are collected (probabilities)
+  protected double[][] pcx_moments; // C x numOfComps array in which some other statistics are collected (moments)
+  protected int c = 0;              // sample counter
   
   
   public BatchBasedOnlineGMM(int numberOfComponents, int bufferLength) {
@@ -45,6 +45,7 @@ public class BatchBasedOnlineGMM extends AbstractGMM {
       pcx[i] = computeComponentDensity(i, x);
       sumProbs += pcx[i];
     }
+    sumProbs = (sumProbs == 0.0) ? 1.0 : sumProbs; // numeric issue
     // normalize values
     //System.out.print("\nx=" + x + ", components: ");
     for (int i = 0; i < k; i ++) {
@@ -55,7 +56,7 @@ public class BatchBasedOnlineGMM extends AbstractGMM {
       pcx_moments[1][i] = (Math.abs(pcx_moments[1][i]) < BatchBasedOnlineGMM.EPS) ? Math.signum(pcx_moments[1][i])*BatchBasedOnlineGMM.EPS : pcx_moments[1][i]; // numeric issues
       pcx_moments[2][i] += (pcx[i] * x * x);
       pcx_moments[2][i] = (pcx_moments[2][i] < BatchBasedOnlineGMM.EPS) ? BatchBasedOnlineGMM.EPS : pcx_moments[2][i]; // numeric issues
-      //System.out.print("\n  " + i + ": g("+i+","+x+")="+pcx[c][i]+", sum0: g("+i+","+x+")="+pcx_moments[0][i]+", sum1: g("+i+","+x+")="+pcx_moments[1][i]+", sum2: g("+i+","+x+")="+pcx_moments[2][i]);
+      //System.out.print("\n  " + i + ": g("+i+","+x+")="+pcx[i]+", sum0: g("+i+","+x+")="+pcx_moments[0][i]+", sum1: g("+i+","+x+")="+pcx_moments[1][i]+", sum2: g("+i+","+x+")="+pcx_moments[2][i]);
     }
     
     // increment the sample counter
@@ -68,6 +69,7 @@ public class BatchBasedOnlineGMM extends AbstractGMM {
       for (int i = 0; i < k; i ++) {
         m[i] = pcx_moments[1][i] / pcx_moments[0][i];
         v[i] = Math.sqrt(pcx_moments[2][i] / pcx_moments[0][i] - m[i] * m[i]);
+        v[i] = (v[i] < BatchBasedOnlineGMM.EPS) ? BatchBasedOnlineGMM.EPS : v[i]; // numeric issue
         w[i] = pcx_moments[0][i] / ((double)bufferLength);
         w[i] = (w[i] < BatchBasedOnlineGMM.EPS) ? 0.0 : w[i]; // numeric issue
         //System.out.print("\n  " + i + ": m=" + m[i] + ", v=" + v[i] + ", w=" + w[i]);

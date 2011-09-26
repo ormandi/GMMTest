@@ -9,6 +9,6 @@ Getting Started
 
 * __build__: Type ant in the source directory i.e.: cd GMMTest; ant
 
-* __running__: Go to the bin directory and starta simulation by typing: cd bin; java -jar gmmtest.jar 0.5,0.2,0.3 -2.0,1.0,2.0 0.2,1.0,0.5 simulation.gif ./gmmSimulation/ 1000 20000 1000 123456789 This will perform a simulation where you have 3 componenets with the following weights, means and variances repectively: [0.5,0.2,0.3] [-2.0,1.0,2.0] [0.2,1.0,0.5], the output will be gnerated in the simulation.gif, the simulation will use the ./gmmSimulation/ directory which must not be existed. It will generate a snapshot in every 1000th iteration. The simulation will generate 20000 samples. The batch size is 1000 and the seed is 123456789. 
+* __running__: Go to the bin directory and start a simulation by typing: cd bin; java -jar gmmtest.jar 0.5,0.2,0.3 -2.0,1.0,2.0 0.2,1.0,0.5 simulation.gif ./gmmSimulation/ 1000 20000 1000 123456789 This will perform a simulation where you have 3 componenets with the following weights, means and variances repectively: [0.5,0.2,0.3] [-2.0,1.0,2.0] [0.2,1.0,0.5], the output will be gnerated in the simulation.gif, the simulation will use the ./gmmSimulation/ directory which must not be existed. It will generate a snapshot in every 1000th iteration. The simulation will generate 20000 samples. The batch size is 1000 and the seed is 123456789. 
 
 

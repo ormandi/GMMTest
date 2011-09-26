@@ -84,6 +84,7 @@ public class MixtureModelSimulator {
     
     // create gmm
     final MixtureModel gmm = new BatchBasedOnlineGMM(numberOfComponents, batchSize);
+    //final MixtureModel gmm = new SmoothGMM(numberOfComponents, batchSize, 0.4);
     
     // init tmp directory
     File tmpDir = new File(tmpDirName);
@@ -121,7 +122,7 @@ public class MixtureModelSimulator {
       "#!/bin/bash\n\n" +
       "echo `pwd`;\n" +
       "for f in `ls *.gpt`; do ./${f} 2>/dev/null; done;\n" + 
-      "convert -delay 5 -loop 0 `ls *.png` ";
+      "convert -delay 10 -loop 0 `ls *.png` ";
     PrintWriter fileOut = null;
     
     // perform simulation

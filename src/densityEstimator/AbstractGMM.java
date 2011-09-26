@@ -42,7 +42,7 @@ public abstract class AbstractGMM implements MixtureModel {
     m = new double[k];
     for (int i = 0; i < k; i ++) {
       m[i] = ((double)i) - ((double)k)/2.0;
-    }    
+    }
     v = new double[k];
     Arrays.fill(v, AbstractGMM.DEFAULT_VARIANCE);
   }
@@ -61,7 +61,9 @@ public abstract class AbstractGMM implements MixtureModel {
       if (w[i] > 0.0) {
         double z = (x - m[i]) / v[i];
         z *= z;
-        return w[i] * AbstractGMM.ONE_PER_SQRT2PI * (1.0/v[i]) * Math.exp(-0.5 * z);
+        double ret = w[i] * AbstractGMM.ONE_PER_SQRT2PI * (1.0/v[i]) * Math.exp(-0.5 * z);
+        //System.out.print("\nx=" + x + ", z=" + z + ", i=" + i + ", density=" + ret);
+        return ret;
       } else {
         return 0.0;
       }
