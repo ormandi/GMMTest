@@ -1,7 +1,7 @@
 Estimating Mixture Models
 =========================
 
-This Java project provides an evaluation interface for estimating Mixture Models (MM) in an online environment.
+This Java project provides an evaluation interface for estimating Mixture Models (MM) in an online manner.
 The estimation is done using a version of the Expectation Maximization algorithm. An example implementation is provided for Gaussian Mixture Models, however, the
 framework allows plugging in other distributions as well.
 
