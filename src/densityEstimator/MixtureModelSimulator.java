@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.TreeMap;
@@ -63,8 +64,8 @@ public class MixtureModelSimulator {
   }
   
   public static void main(String[] args) throws Exception{
-    if (args.length != 8 && args.length != 9) {
-      System.err.println("Usage: java -jar gmmtest.jar w1,w2,...,wn m1,m2,...,mn v1,v2,...,vn outputFile tmpDir snapshotStepSize numberOfGeneratedSamples batchSize [seed]");
+    if (args.length != 10 && args.length != 11) {
+      System.err.println("Usage: java -jar gmmtest.jar w1,w2,...,wn m1,m2,...,mn v1,v2,...,vn outputFile tmpDir snapshotStepSize numberOfGeneratedSamples mixtureModelClassName numberOfComponents mixtureModelParams [seed]");
       return;
     }
     final double[] expW = parseArray(args[0]);
@@ -73,18 +74,20 @@ public class MixtureModelSimulator {
     if (expW.length != expNu.length || expNu.length != expSigma.length || expSigma.length != expW.length) {
       throw new RuntimeException("The number of components, means and variances have to be equal.");
     }
-    final int numberOfComponents = expW.length;
     final String outputFileName = args[3];
     final String tmpDirName = args[4];
     final int snapshotStepSize = Integer.parseInt(args[5]);
     final int numOfGeneratedSamples = Integer.parseInt(args[6]);
-    final int batchSize = Integer.parseInt(args[7]);
-    final long seed = (args.length == 9) ? Long.parseLong(args[8]) : System.currentTimeMillis();
+    final String mmName = args[7];
+    final int mmCompnents = Integer.parseInt(args[8]);
+    final String mmParams = args[9];
+    final long seed = (args.length == 11) ? Long.parseLong(args[10]) : System.currentTimeMillis();
     final boolean isClear = true;
     
     // create gmm
-    final MixtureModel gmm = new BatchBasedOnlineGMM(numberOfComponents, batchSize);
-    //final MixtureModel gmm = new SmoothGMM(numberOfComponents, batchSize, 0.4);
+    final Constructor<?> gmmConstructor = Class.forName(mmName).getConstructor(Integer.TYPE);    
+    final MixtureModel gmm = (MixtureModel) gmmConstructor.newInstance(mmCompnents);
+    gmm.parseParameters(mmParams);
     
     // init tmp directory
     File tmpDir = new File(tmpDirName);
@@ -209,6 +212,7 @@ public class MixtureModelSimulator {
     ProcessBuilder pb = new ProcessBuilder(scriptFile.getCanonicalPath());
     pb.directory(tmpDir);
     Process p = pb.start();
+    p.waitFor();
     BufferedReader generatorError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
     String line = generatorError.readLine();
     while (line != null) {

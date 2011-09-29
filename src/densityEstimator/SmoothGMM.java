@@ -1,6 +1,7 @@
 package densityEstimator;
 
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * In this class we perform an averaging through the parameters.
@@ -16,9 +17,11 @@ public class SmoothGMM extends BatchBasedOnlineGMM {
   protected double[] prev_m = null;  // previous component (m)eans
   protected double[] prev_v = null;  // previous component (v)ariances
   
-  public SmoothGMM(int numberOfComponents, int bufferLength, double alpha) {
-    super(numberOfComponents, bufferLength);
-    this.alpha = alpha;
+  /**
+   * This is a mandatory constructor which is used through the reflection based initalization in the simulator.  
+   */
+  public SmoothGMM(int numberOfComponents) {
+    super(numberOfComponents);
     prev_w = new double[k];
     Arrays.fill(prev_w, 0.0);
     prev_m = new double[k];
@@ -29,6 +32,18 @@ public class SmoothGMM extends BatchBasedOnlineGMM {
     Arrays.fill(prev_v, 0.0);
   }
   
+  @Override
+  public Map<String,String> parseParameters(String params) {
+    Map<String,String> p = super.parseParameters(params);    
+    if (p.containsKey("alpha")) {
+      alpha = Double.parseDouble(p.get("alpha"));
+    } else {
+      throw new RuntimeException("Parameter alpha=someDouble is mandatory for mixture model " + getClass().getCanonicalName() + ", please specify it at the command line!");
+    }
+    return p;
+  }
+  
+  @Override
   public void update(double x) {
     super.update(x);
     
@@ -36,9 +51,12 @@ public class SmoothGMM extends BatchBasedOnlineGMM {
     if (c == 0) {
       for (int i = 0; i < k; i ++) {
         // weights
-        prev_w[i] = w[i] = (1.0 - alpha) * prev_w[i] + alpha * w[i];
-        prev_m[i] = m[i] = (1.0 - alpha) * prev_m[i] + alpha * m[i];
-        prev_v[i] = v[i] = (1.0 - alpha) * prev_v[i] + alpha * v[i];
+        w[i] = (1.0 - alpha) * prev_w[i] + alpha * w[i];
+        prev_w[i] = w[i];
+        m[i] = (1.0 - alpha) * prev_m[i] + alpha * m[i];
+        prev_m[i] = m[i];
+        v[i] = (1.0 - alpha) * prev_v[i] + alpha * v[i];
+        prev_v[i] = v[i];
       }
     }
   }

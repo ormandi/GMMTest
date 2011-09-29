@@ -1,5 +1,8 @@
 package densityEstimator;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * This class implements a naive online GMM learning mechanism using the
  * idea of Expectation-Maximization (EM). The key difference between this
@@ -24,17 +27,48 @@ public class BatchBasedOnlineGMM extends AbstractGMM {
   private static final int COMPUTED_MOMENTS = 3;
   private static final double EPS = 1.0E-12;
   
-  protected int bufferLength;       // number of samples from which gamma statistics are collected
-  protected double[] pcx;           // bufferLength x numOfComps array in which the statistics are collected (probabilities)
+  protected int batchSize;       // number of samples from which gamma statistics are collected
+  protected double[] pcx;           // batchSize x numOfComps array in which the statistics are collected (probabilities)
   protected double[][] pcx_moments; // C x numOfComps array in which some other statistics are collected (moments)
   protected int c = 0;              // sample counter
   
-  
-  public BatchBasedOnlineGMM(int numberOfComponents, int bufferLength) {
+  /**
+   * This is a mandatory constructor which is used through the reflection based initalization in the simulator.  
+   */
+  public BatchBasedOnlineGMM(int numberOfComponents) {
     setNumberOfComponents(numberOfComponents);
-    this.bufferLength = bufferLength;
     pcx = new double[numberOfComponents];
     pcx_moments = new double[BatchBasedOnlineGMM.COMPUTED_MOMENTS][numberOfComponents];
+  }
+  
+  @Override
+  public Map<String,String> parseParameters(String params) {
+    Map<String,String> p = parseParamsToMap(params);    
+    if (p.containsKey("batchSize")) {
+      batchSize = Integer.parseInt(p.get("batchSize"));
+    } else {
+      throw new RuntimeException("Parameter batchSize=someInteger is mandatory for mixture model " + getClass().getCanonicalName() + ", please specify it at the command line!");
+    }
+    return p;
+  }
+  
+  /**
+   * This is a generic parameter parser method for the base classes.
+   * 
+   * @param params paramter string which contains comma separeted param-value pairs in from paramName=value
+   * @return parsed parmeter map
+   */
+  protected Map<String,String> parseParamsToMap(String params) {
+    String[] paramsA = params.split("\\s*,\\s*");
+    Map<String,String> ret = new TreeMap<String,String>();
+    for (int i = 0; i < paramsA.length; i ++) {
+      String[] paramValuePair = paramsA[i].split("\\s*=\\s*");
+      if (paramValuePair.length != 2) {
+        throw new RuntimeException("Bad parameter format at " + paramsA[i] + "!");
+      }
+      ret.put(paramValuePair[0].trim(), paramValuePair[1].trim());
+    }
+    return ret;
   }
   
   @Override
@@ -61,7 +95,7 @@ public class BatchBasedOnlineGMM extends AbstractGMM {
     
     // increment the sample counter
     c++;    
-    if (c == bufferLength) {
+    if (c == batchSize) {
       // all P(C_i|x_j) are computed so perform an EM step and clear statistics
       
       //System.out.print("\nM-step, components: ");
@@ -70,7 +104,7 @@ public class BatchBasedOnlineGMM extends AbstractGMM {
         m[i] = pcx_moments[1][i] / pcx_moments[0][i];
         v[i] = Math.sqrt(pcx_moments[2][i] / pcx_moments[0][i] - m[i] * m[i]);
         v[i] = (v[i] < BatchBasedOnlineGMM.EPS) ? BatchBasedOnlineGMM.EPS : v[i]; // numeric issue
-        w[i] = pcx_moments[0][i] / ((double)bufferLength);
+        w[i] = pcx_moments[0][i] / ((double)batchSize);
         w[i] = (w[i] < BatchBasedOnlineGMM.EPS) ? 0.0 : w[i]; // numeric issue
         //System.out.print("\n  " + i + ": m=" + m[i] + ", v=" + v[i] + ", w=" + w[i]);
       }

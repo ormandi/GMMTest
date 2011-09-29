@@ -1,6 +1,7 @@
 package densityEstimator;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * This is a general representation of any mixture model
@@ -72,4 +73,16 @@ public interface MixtureModel extends Serializable {
    * @param num nex component number
    */
   public void setNumberOfComponents(int num);
+  
+  /**
+   * This method parses and sets the parameters of the Mixture Model from a string which contains comma separeted 
+   * param, value pairs in form parmName=value.
+   * This should be called before the first update!
+   * 
+   * @param params 
+   * @return it returns the parsed parameterName-value pairs as a string map. This solution helps to avoid performing more 
+   * paramter parsing process e.g. in the inheritance hierarchy. 
+   * 
+   */
+  public Map<String,String> parseParameters(String params);
 }
