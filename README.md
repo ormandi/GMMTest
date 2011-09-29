@@ -7,7 +7,7 @@ framework allows plugging in other distributions as well.
 
 It receives a mixture model as input, then it generates samples from the MM
 and tries to estimate the parameters of the given MM. During the
-simulation in every ``1000``<sup>th</sup> iteration (by default) it takes a snapshot of the current state of the simulation.
+simulation in every 1000<sup>th</sup> iteration (by default) it takes a snapshot of the current state of the simulation.
 Finally, it combines these images into an animated ``.gif`` file. This is a demo implementation, it is not optimized.
 
 Requirements
@@ -25,8 +25,8 @@ Getting Started
 * __building__: Use Apache Ant inside the ``GMMTest`` directory to compile the sources.
 
 ``
-cd GMMTest
-ant
+  cd GMMTest;
+  ant
 ``
 
 * __running__: Switch to the bin directory and start a simulation by typing:
